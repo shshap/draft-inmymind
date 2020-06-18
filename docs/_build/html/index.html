@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>inmymind’s documentation &#8212; inmymind 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="inmymind-s-documentation">
+<h1>inmymind’s documentation<a class="headerlink" href="#inmymind-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p><strong>Client</strong>:</p>
+<dl>
+<dt>client:</dt><dd><span class="target" id="module-inmymind.client.client"></span><dl class="class">
+<dt id="inmymind.client.client.Manager">
+<em class="property">class </em><code class="sig-prename descclassname">inmymind.client.client.</code><code class="sig-name descname">Manager</code><span class="sig-paren">(</span><em class="sig-param">driver_url</em>, <em class="sig-param">reader_url</em>, <em class="sig-param">writer_url</em><span class="sig-paren">)</span><a class="headerlink" href="#inmymind.client.client.Manager" title="Permalink to this definition">¶</a></dt>
+<dd><p>The main class of the client. Abstract Handler of the connections between the Driver, the Reader and the
+Writer. Does not aware to to protocol.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inmymind.client.client.upload_sample_by_urls">
+<code class="sig-prename descclassname">inmymind.client.client.</code><code class="sig-name descname">upload_sample_by_urls</code><span class="sig-paren">(</span><em class="sig-param">driver_url</em>, <em class="sig-param">writer_url</em><span class="sig-paren">)</span><a class="headerlink" href="#inmymind.client.client.upload_sample_by_urls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the client behaviour using urls.</p>
+<p>Args:</p>
+<p>driver_url - The url of the sample.
+format: scheme://hostname:password&#64;host:port/path?queries.
+The path extentions are &lt;protocol&gt;.&lt;file_format&gt;.
+example: <code class="docutils literal notranslate"><span class="pre">file:///sample.mind.gz</span></code>. Here the protocol is <code class="xref py py-mod docutils literal notranslate"><span class="pre">inmymind.protocols.mind</span></code>.</p>
+<p>writer_url: The url of the destination.
+format: as above.
+example: <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8000/</span></code></p>
+<p>Returns:
+0 - Successfully done reading the sample. 1 - Failure.</p>
+</dd></dl>
+
+</dd>
+<dt>Driver:</dt><dd><span class="target" id="module-inmymind.client.drivers.basic_drivers"></span><p>Driver’s job is to gets the sample.
+The protocol and the file format are interfered from the url.
+Otherwise, throws ValueError exception.
+Every driver exposes a API as in the next example:</p>
+<dl class="class">
+<dt id="inmymind.client.drivers.basic_drivers.Driver_example">
+<em class="property">class </em><code class="sig-prename descclassname">inmymind.client.drivers.basic_drivers.</code><code class="sig-name descname">Driver_example</code><a class="headerlink" href="#inmymind.client.drivers.basic_drivers.Driver_example" title="Permalink to this definition">¶</a></dt>
+<dd><p>Driver must be a class since it has the expose an API.
+Driver’s name must be Driver_&lt;scheme&gt;. Here, the scheme is ‘example’.
+In initialization, gets the driver_url.
+Opening the sample, if needed, happens during the Driver object initialization.</p>
+<dl class="method">
+<dt id="inmymind.client.drivers.basic_drivers.Driver_example.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#inmymind.client.drivers.basic_drivers.Driver_example.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closure procedure, if needed. This method will be called right before exiting the program</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="inmymind.client.drivers.basic_drivers.Driver_example.read">
+<code class="sig-name descname">read</code><span class="sig-paren">(</span><em class="sig-param">size</em><span class="sig-paren">)</span><a class="headerlink" href="#inmymind.client.drivers.basic_drivers.Driver_example.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the next <cite>size</cite> bytes from the sample</p>
+</dd></dl>
+
+</dd></dl>
+
+</dd>
+<dt>Reader:</dt><dd><span class="target" id="module-inmymind.client.readers.basic_readers"></span><p>Reader’s job is to read the sample, proccess the content, and output the result
+to be sent to the next component, following the protocol .
+Reads item by item, using the driver and outputs the items one by one.
+The input format is interfered from the driver_url in the upload_sample_by_urls function,
+in client.py, if possible, otherwise it will be <code class="docutils literal notranslate"><span class="pre">Mind</span></code> protocol.</p>
+<dl class="function">
+<dt id="inmymind.client.readers.basic_readers.reader_example">
+<code class="sig-prename descclassname">inmymind.client.readers.basic_readers.</code><code class="sig-name descname">reader_example</code><span class="sig-paren">(</span><em class="sig-param">url</em>, <em class="sig-param">driver</em><span class="sig-paren">)</span><a class="headerlink" href="#inmymind.client.readers.basic_readers.reader_example" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reader is a function. If ones prefers a class, it has a <code class="docutils literal notranslate"><span class="pre">read</span></code> function with the same signature, and
+to the __init__ function must get the reader_url.
+Reader’s name must be reader_&lt;protocol&gt;. Here, the scheme is ‘example’.
+The output format is a dict contains the keys: <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">content_type</span></code>.
+The specific values are described in the relevant protocol.</p>
+</dd></dl>
+
+</dd>
+<dt>Writer:</dt><dd><span class="target" id="module-inmymind.client.writers.basic_writers"></span><p>Writer’s job is to write/send the data he got from the reader, to the destination.
+Writes an item to the destination, destination is interfered from the url, if possible.
+Otherwise, the default is <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8000/</span></code>.
+Gets the item and content type in the format:</p>
+<dl class="function">
+<dt id="inmymind.client.writers.basic_writers.writer_example">
+<code class="sig-prename descclassname">inmymind.client.writers.basic_writers.</code><code class="sig-name descname">writer_example</code><span class="sig-paren">(</span><em class="sig-param">raw_url</em>, <em class="sig-param">item=None</em><span class="sig-paren">)</span><a class="headerlink" href="#inmymind.client.writers.basic_writers.writer_example" title="Permalink to this definition">¶</a></dt>
+<dd><p>writer is a function. If ones prefers a class, it has a <code class="docutils literal notranslate"><span class="pre">write</span></code> function with the same signature, and
+to the __init__ function must get the writer_url.
+Writer’s name must be writer_&lt;protocol&gt;. Here, the scheme is ‘example’.
+It accepts item of which is a dict with the keys <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">content_type</span></code>.</p>
+</dd></dl>
+
+</dd>
+</dl>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">inmymind</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Shani Shapira.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
