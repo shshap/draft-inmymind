@@ -1,0 +1,138 @@
+version: '3'
+
+services:
+  mongodb:
+    hostname: "mongodb"
+    image: mongo
+    restart: on-failure
+    networks:
+      - localnet
+
+  dbrestapi:
+    hostname: "dbrestapi"
+    build: dbrestapi
+    command: python -u app.py mongo://mongodb:27017
+    expose:
+      - "80"
+    ports:
+      - "5001:80"
+    volumes:
+      - ./dbrestapi:/usr/src/app
+      #- ../data:/usr/src/data
+    restart: on-failure
+    depends_on:
+      - "mongodb"
+    networks:
+      - localnet
+
+  rabbitmq:
+    hostname: "rabbitmq"
+    image: rabbitmq:3.8-management
+    expose:
+      - "5672"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "5672"]
+      interval: 5s
+      timeout: 15s
+      retries: 1
+    networks:
+      - localnet
+
+  server:
+    hostname: "server"
+    build: server
+    command: python -u server.py
+    volumes:
+      - ./server:/usr/src/app
+      - ../snapshots:/usr/src/snapshots
+    depends_on:
+      - "rabbitmq"
+    restart: on-failure
+    networks:
+      - localnet
+
+  pose:
+    hostname: "pose"
+    build: parser
+    command: python -u parser.py pose
+    volumes:
+      - ./saver:/usr/src/app
+      #- ../snapshots:/usr/src/snapshots
+    depends_on:
+      - "rabbitmq"
+    restart: on-failure
+    networks:
+      - localnet
+
+  feelings:
+    hostname: "feelings"
+    build: parser
+    command: python -u parser.py feelings
+    volumes:
+      - ./saver:/usr/src/app
+      - ../snapshots:/usr/src/snapshots
+    depends_on:
+      - "rabbitmq"
+      - "server"
+    restart: on-failure
+    networks:
+      - localnet
+
+  color_image:
+    hostname: "color_image"
+    build: parser
+    command: python -u parser.py color_image
+    volumes:
+      - ./saver:/usr/src/app
+      - ../data:/usr/src/data
+      - ../snapshots:/usr/src/snapshots
+    depends_on:
+      - "rabbitmq"
+    restart: on-failure
+    networks:
+      - localnet
+
+  depth_image:
+    hostname: "depth_image"
+    build: parser
+    command: python -u parser.py depth_image
+    volumes:
+      - ./saver:/usr/src/app
+      - ../data:/usr/src/data
+      - ../snapshots:/usr/src/snapshots
+    depends_on:
+      - "rabbitmq"
+    restart: on-failure
+    networks:
+      - localnet
+
+  saver:
+    hostname: "saver"
+    build: saver
+    command: python -u saver.py
+    volumes:
+      - ./saver:/usr/src/app
+    depends_on:
+      - "rabbitmq"
+    restart: on-failure
+    networks:
+      - localnet
+
+  client:
+    hostname: "client"
+      build: client
+      command: python -u client.py
+      volumes:
+        - ./client:/usr/src/app
+      restart: on-failure
+      networks:
+        - localnet
+
+
+networks:
+  localnet:
+    driver: bridge
